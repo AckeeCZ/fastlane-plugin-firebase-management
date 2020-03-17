@@ -14,20 +14,36 @@ fastlane add_plugin firebase_management
 
 An unofficial tool to access Firebase project settings. It allows you to create new apps and download config files (GoogleInfo.plist for ios and google-services.json for android).
 
-Plugin uses new official [Firebase Management API](https://firebase.google.com/docs/projects/api/reference/rest/) introduced on Firebase Summit 10/2018. It's based on [tkohout/fastlane-firebase-plugin](https://github.com/tkohout/fastlane-firebase-plugin), which uses web scraping instead of official API to manage Firebase apps. The plan is that both plugins will live next to each other until official API will contain all desired features and tkohout's plugin won't be needed anymore.
+Plugin uses new official [Firebase Management API](https://firebase.google.com/docs/projects/api/reference/rest/) introduced on Firebase Summit 10/2018. It's based on [ackeeCZ/fastlane-firebase-plugin](https://github.com/ackeeCZ/fastlane-firebase-plugin), which uses web scraping instead of official API to manage Firebase apps. The plan is that both plugins will live next to each other until official API will contain all desired features and tkohout's plugin won't be needed anymore.
 
 New features like deleting apps or APNs keys/certificates management are promised by guys from Google/Firebase so stay tuned 🤙
 
-**This very first version was developed using alpha version of the API in a very short time, so it may contain bugs or mistakes. Issues and PRs are very welcome! 🤗**
+**This very first version was developed using alpha version of the API in a very short time, so it may contain bugs or mistakes. Issues and PRs are very welcome! This was forked from a fork to add more versatility to the firebase_management_list action. 🤗**
 
 ### Actions
 
-List all projects and apps
+List all projects and apps. If you leave this action blank it will prompt for the required fields
 
 ```
 firebase_management_list
 ```
 
+Better example:
+
+```
+firebase_list = firebase_management_list(
+    service_account_json_path:  "firebase_project_name.json",
+    type: "android" #(Required). Android or ios This field will return a hash of bundle id's and their firebase app id's
+    bundle_id: bundle_id, # This is the bundle id of the app you are searching for. If left blank all app ids will return
+)
+
+```
+
+Where the value of `firebase_list` would be 
+
+```
+{com.captainjeff.com: 1:123456789:android:abcd1234}
+```
 
 Add app to a project and download config file
 
@@ -39,6 +55,18 @@ Download config file for a client
 
 ```
 firebase_management_download_config
+```
+
+Better example:
+
+```
+firebase_management_download_config(
+          service_account_json_path: "firebase_project_name.json",
+          type: "android",
+          app_id: firebase_list[application_id], #Use the response from the firebase_management_list function to know the app id
+          output_path: "./app",
+          project_id: project_id #Name of the project which is created on the firebase console. Each project can contain 20 or so apps for ios and android each
+        )
 ```
 
 ### Authentication
@@ -59,19 +87,6 @@ Go to Firebase Console -> Your project -> Project settings -> Service accounts a
 
 Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane test`.
 
-
-## Run tests for this plugin
-
-To run both the tests, and code style validation, run
-
-```
-rake
-```
-
-To automatically fix many of the styling issues, use
-```
-rubocop -a
-```
 
 ## Issues and Feedback
 
